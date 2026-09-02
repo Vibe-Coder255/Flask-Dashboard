@@ -26,3 +26,4 @@ Flask-Dashboard/
 │
 ├── LICENSE
 └── README.md
+
