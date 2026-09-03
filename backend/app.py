@@ -10,6 +10,8 @@ from databases.mongodb_user01 import (
 	insert_user01_document,
 	update_user01_document,
 )
+from databases.mysql import check_mysql_connection, get_mysql_tables, get_mysql_table_data
+from databases.postgres import check_postgres_connection, get_postgres_tables, get_postgres_table_data
 
 
 logging.basicConfig(level=logging.INFO)
@@ -91,6 +93,62 @@ def delete_user01(document_id: str):
 	if not deleted:
 		return jsonify({"error": "Document not found"}), 404
 	return "", 204
+
+
+@app.get("/api/mysql/status")
+def mysql_status():
+	try:
+		return jsonify(check_mysql_connection())
+	except Exception:
+		logger.exception("Unable to check MySQL status")
+		return jsonify({"error": "Unable to check MySQL status"}), 503
+
+
+@app.get("/api/mysql/tables")
+def mysql_tables():
+	try:
+		return jsonify(get_mysql_tables())
+	except Exception:
+		logger.exception("Unable to get MySQL tables")
+		return jsonify({"error": "Unable to get MySQL tables"}), 503
+
+
+@app.get("/api/mysql/table/<table_name>")
+def mysql_table_data(table_name: str):
+	try:
+		limit = min(max(request.args.get("limit", default=100, type=int), 1), 1000)
+		return jsonify(get_mysql_table_data(table_name, limit))
+	except Exception:
+		logger.exception("Unable to get MySQL table data")
+		return jsonify({"error": "Unable to get MySQL table data"}), 503
+
+
+@app.get("/api/postgres/status")
+def postgres_status():
+	try:
+		return jsonify(check_postgres_connection())
+	except Exception:
+		logger.exception("Unable to check PostgreSQL status")
+		return jsonify({"error": "Unable to check PostgreSQL status"}), 503
+
+
+@app.get("/api/postgres/tables")
+def postgres_tables():
+	try:
+		return jsonify(get_postgres_tables())
+	except Exception:
+		logger.exception("Unable to get PostgreSQL tables")
+		return jsonify({"error": "Unable to get PostgreSQL tables"}), 503
+
+
+@app.get("/api/postgres/table/<table_name>")
+def postgres_table_data(table_name: str):
+	try:
+		limit = min(max(request.args.get("limit", default=100, type=int), 1), 1000)
+		return jsonify(get_postgres_table_data(table_name, limit))
+	except Exception:
+		logger.exception("Unable to get PostgreSQL table data")
+		return jsonify({"error": "Unable to get PostgreSQL table data"}), 503
 
 
 if __name__ == "__main__":
