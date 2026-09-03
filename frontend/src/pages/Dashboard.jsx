@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react'
 import StatCard from '../components/StatCard'
 import { getMongoDBLogs, getUser01Documents } from '../services/api'
 
+function formatDocumentId(id) {
+  if (typeof id === 'string') return id
+  if (id && typeof id.$oid === 'string') return id.$oid
+  return String(id ?? '')
+}
+
 function Dashboard() {
   const [logs, setLogs] = useState([])
   const [documents, setDocuments] = useState([])
@@ -44,7 +50,7 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1 className="terminal-title">BLOOMBERG TERMINAL - DATABASE MONITOR</h1>
+        <h1 className="terminal-title">DATABASE MONITOR</h1>
         <div className="timestamp">{new Date().toLocaleString()}</div>
       </div>
 
@@ -115,7 +121,7 @@ function Dashboard() {
                 <tbody>
                   {documents.slice(0, 15).map((doc, index) => (
                     <tr key={index}>
-                      <td className="cell-id">{doc._id.substring(0, 8)}...</td>
+                      <td className="cell-id">{formatDocumentId(doc._id).substring(0, 8)}...</td>
                       <td className="cell-preview">
                         {JSON.stringify(doc, null, 2).substring(0, 100)}...
                       </td>
